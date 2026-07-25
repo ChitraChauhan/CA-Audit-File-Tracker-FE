@@ -733,7 +733,7 @@ td.remarks-cell {
 }
 
 @media print {
-  .app-header, .summary-bar, .panel.filters-panel, .panel-head .header-actions, .actions-cell, #toast-wrap {
+  .app-header, .summary-bar, .panel.filters-panel, .panel-head .header-actions, .actions-cell, #toast-wrap, .app-footer {
     display: none !important;
   }
   body {
@@ -749,4 +749,16 @@ td.remarks-cell {
     background: #eee !important;
     color: #000 !important;
   }
+}
+
+/* ===== Footer ===== */
+.app-footer {
+  background: var(--navy-900);
+  color: var(--gray-400);
+  text-align: center;
+  padding: 16px 20px;
+  font-size: 13px;
+  font-weight: 500;
+  margin-top: 40px;
+  border-top: 1px solid var(--navy-800);
 }

@@ -312,6 +312,11 @@ export default function App() {
           </div>
         ))}
       </div>
+
+      {/* Footer */}
+      <footer className="app-footer">
+        Made with ❤️ by Chitra Mayank Sankariya
+      </footer>
     </div>
   );
 }

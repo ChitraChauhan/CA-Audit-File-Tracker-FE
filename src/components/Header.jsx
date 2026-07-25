@@ -6,7 +6,7 @@ export default function Header({ lastUpdated, onPrint, onExportAll, onNewFile })
       <div className="brand">
         <div className="brand-mark">CA</div>
         <div className="brand-text">
-          <h1>Audit File Register</h1>
+          <h1>Smart CA Tracker</h1>
           <span>Physical File Movement & Tracking System</span>
         </div>
       </div>
