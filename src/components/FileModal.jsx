@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { AUDIT_TYPES, STATUSES, PRIORITIES, currentFY, fyOptions, todayStr } from '../utils/helpers.js';
+import { AUDIT_TYPES, STATUSES, PRIORITIES, RELATIONS, BANKS, FEE_TYPES, currentFY, fyOptions, todayStr } from '../utils/helpers.js';
 
 export default function FileModal({ isOpen, record, onClose, onSave }) {
   const [formData, setFormData] = useState({
@@ -18,7 +18,16 @@ export default function FileModal({ isOpen, record, onClose, onSave }) {
     status: 'Files Received',
     internalNotes: '',
     pendingDocuments: '',
-    clientRemarks: ''
+    clientRemarks: '',
+    filingDate: '',
+    relation: '',
+    feeType: '',
+    amountDue: '',
+    receiptAmount: '',
+    receiptStatus: '',
+    receivedDate: '',
+    receivedInBank: '',
+    tallyEntryStatus: ''
   });
 
   const [errors, setErrors] = useState({});
@@ -42,7 +51,16 @@ export default function FileModal({ isOpen, record, onClose, onSave }) {
         status: record.status || 'Files Received',
         internalNotes: record.internalNotes || '',
         pendingDocuments: record.pendingDocuments || '',
-        clientRemarks: record.clientRemarks || ''
+        clientRemarks: record.clientRemarks || '',
+        filingDate: record.filingDate || '',
+        relation: record.relation || '',
+        feeType: record.feeType || '',
+        amountDue: record.amountDue || '',
+        receiptAmount: record.receiptAmount || '',
+        receiptStatus: record.receiptStatus || '',
+        receivedDate: record.receivedDate || '',
+        receivedInBank: record.receivedInBank || '',
+        tallyEntryStatus: record.tallyEntryStatus || ''
       });
     } else {
       setFormData({
@@ -61,7 +79,15 @@ export default function FileModal({ isOpen, record, onClose, onSave }) {
         status: 'Files Received',
         internalNotes: '',
         pendingDocuments: '',
-        clientRemarks: ''
+        clientRemarks: '',
+        filingDate: '',
+        relation: '',
+        amountDue: '',
+        receiptAmount: '',
+        receiptStatus: '',
+        receivedDate: '',
+        receivedInBank: '',
+        tallyEntryStatus: ''
       });
     }
     setErrors({});
@@ -71,7 +97,26 @@ export default function FileModal({ isOpen, record, onClose, onSave }) {
 
   const handleChange = (e) => {
     const { id, value } = e.target;
-    setFormData(prev => ({ ...prev, [id]: value }));
+    setFormData(prev => {
+      const updated = { ...prev, [id]: value };
+      
+      // Auto-calculate receipt status based on amountDue and receiptAmount
+      if (id === 'amountDue' || id === 'receiptAmount') {
+        const amountDue = Number(updated.amountDue) || 0;
+        const receiptAmount = Number(updated.receiptAmount) || 0;
+        const pendingAmount = amountDue - receiptAmount;
+        
+        if (receiptAmount === 0) {
+          updated.receiptStatus = 'Pending';
+        } else if (pendingAmount > 0) {
+          updated.receiptStatus = 'Partial';
+        } else if (pendingAmount === 0 && receiptAmount > 0) {
+          updated.receiptStatus = 'Cleared';
+        }
+      }
+      
+      return updated;
+    });
     if (errors[id]) {
       setErrors(prev => ({ ...prev, [id]: false }));
     }
@@ -177,14 +222,14 @@ export default function FileModal({ isOpen, record, onClose, onSave }) {
               </div>
 
               <div className={`field ${errors.auditType ? 'invalid' : ''}`}>
-                <label>AUDIT TYPE *</label>
+                <label>WORK TYPE *</label>
                 <select id="auditType" value={formData.auditType} onChange={handleChange} required>
                   <option value="">Select Type</option>
                   {AUDIT_TYPES.map(t => (
                     <option key={t} value={t}>{t}</option>
                   ))}
                 </select>
-                <div className="error-text">Audit Type is required</div>
+                <div className="error-text">Work Type is required</div>
               </div>
 
               <div className="field">
@@ -195,24 +240,41 @@ export default function FileModal({ isOpen, record, onClose, onSave }) {
                   ))}
                 </select>
               </div>
+
+              <div className="field">
+                <label>FILING DATE</label>
+                <input
+                  type="date"
+                  id="filingDate"
+                  value={formData.filingDate}
+                  onChange={handleChange}
+                />
+              </div>
+
+              <div className="field">
+                <label>GROUP</label>
+                <select id="relation" value={formData.relation} onChange={handleChange}>
+                  <option value="">Select Group</option>
+                  {RELATIONS.map(r => (
+                    <option key={r} value={r}>{r}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="field">
+                <label>FEE TYPE</label>
+                <select id="feeType" value={formData.feeType} onChange={handleChange}>
+                  <option value="">Select Fee Type</option>
+                  {FEE_TYPES.map(f => (
+                    <option key={f} value={f}>{f}</option>
+                  ))}
+                </select>
+              </div>
             </div>
 
             {/* FILE MOVEMENT */}
             <div className="form-section-title">FILE MOVEMENT</div>
             <div className="form-grid three">
-              <div className={`field ${errors.filesReceived ? 'invalid' : ''}`}>
-                <label>NUMBER OF FILES RECEIVED *</label>
-                <input
-                  type="number"
-                  id="filesReceived"
-                  min="0"
-                  value={formData.filesReceived}
-                  onChange={handleChange}
-                  required
-                />
-                <div className="error-text">Must be a valid number</div>
-              </div>
-
               <div className={`field ${errors.dateReceived ? 'invalid' : ''}`}>
                 <label>DATE RECEIVED *</label>
                 <input
@@ -226,43 +288,90 @@ export default function FileModal({ isOpen, record, onClose, onSave }) {
               </div>
 
               <div className="field">
-                <label>RECEIVED BY (STAFF)</label>
-                <input
-                  type="text"
-                  id="receivedBy"
-                  value={formData.receivedBy}
-                  onChange={handleChange}
-                  placeholder=""
-                />
-              </div>
-
-              <div className="field">
-                <label>ASSIGNED TO (STAFF)</label>
-                <input
-                  type="text"
-                  id="assignedTo"
-                  value={formData.assignedTo}
-                  onChange={handleChange}
-                  placeholder=""
-                />
-              </div>
-
-              <div className={`field ${errors.expectedReturnDate ? 'invalid' : ''}`}>
-                <label>EXPECTED RETURN DATE *</label>
-                <input
-                  type="date"
-                  id="expectedReturnDate"
-                  value={formData.expectedReturnDate}
-                  onChange={handleChange}
-                />
-              </div>
-
-              <div className="field">
                 <label>STATUS</label>
                 <select id="status" value={formData.status} onChange={handleChange}>
                   {STATUSES.map(s => (
                     <option key={s} value={s}>{s}</option>
                   ))}
+                </select>
+              </div>
+            </div>
+
+            {/* PAYMENT INFORMATION */}
+            <div className="form-section-title">PAYMENT INFORMATION</div>
+            <div className="form-grid three">
+              <div className="field">
+                <label>AMOUNT DUE</label>
+                <input
+                  type="number"
+                  id="amountDue"
+                  value={formData.amountDue}
+                  onChange={handleChange}
+                  placeholder="0.00"
+                  step="0.01"
+                />
+              </div>
+
+              <div className="field">
+                <label>RECEIVED AMOUNT</label>
+                <input
+                  type="number"
+                  id="receiptAmount"
+                  value={formData.receiptAmount}
+                  onChange={handleChange}
+                  placeholder="0.00"
+                  step="0.01"
+                />
+              </div>
+
+              <div className="field">
+                <label>PENDING AMOUNT</label>
+                <input
+                  type="number"
+                  id="pendingAmount"
+                  value={(formData.amountDue || 0) - (formData.receiptAmount || 0)}
+                  disabled
+                  className="disabled"
+                />
+              </div>
+
+              <div className="field">
+                <label>PAYMENT STATUS</label>
+                <select id="receiptStatus" value={formData.receiptStatus} onChange={handleChange}>
+                  <option value="">Select Status</option>
+                  <option value="Pending">Pending</option>
+                  <option value="Partial">Partial</option>
+                  <option value="Cleared">Cleared</option>
+                </select>
+              </div>
+
+              <div className="field">
+                <label>RECEIVED DATE</label>
+                <input
+                  type="date"
+                  id="receivedDate"
+                  value={formData.receivedDate}
+                  onChange={handleChange}
+                />
+              </div>
+
+              <div className="field">
+                <label>RECEIVED IN BANK</label>
+                <select id="receivedInBank" value={formData.receivedInBank} onChange={handleChange}>
+                  <option value="">Select Bank</option>
+                  {BANKS.map(b => (
+                    <option key={b} value={b}>{b}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="field">
+                <label>TALLY ENTRY STATUS</label>
+                <select id="tallyEntryStatus" value={formData.tallyEntryStatus} onChange={handleChange}>
+                  <option value="">Select Status</option>
+                  <option value="Pending">Pending</option>
+                  <option value="Done">Done</option>
+                  <option value="Not Required">Not Required</option>
                 </select>
               </div>
             </div>

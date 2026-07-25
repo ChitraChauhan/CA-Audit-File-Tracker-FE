@@ -48,14 +48,14 @@ export const isDueToday = (rec) => {
 
 export const toCSV = (list) => {
   const headers = [
-    'Sr No', 'File ID', 'Client Name', 'Status', 'Filing Date', 'Relation',
-    'Amount Due', 'Receipt Amount', 'Pending Amount', 'Receipt Status',
+    'Sr No', 'File ID', 'Client Name', 'Status', 'Filing Date', 'Group',
+    'Fee Type', 'Amount Due', 'Receipt Amount', 'Pending Amount', 'Payment Status',
     'Received Date', 'Received In Bank', 'Tally Entry Status',
-    'Financial Year', 'Audit Type', 'Priority', 'Assigned To', 'Internal Notes'
+    'Financial Year', 'Work Type', 'Priority', 'Assigned To', 'Internal Notes'
   ];
   const rows = list.map(r => [
     r.srNo || '', r.id, r.clientName, r.status, r.filingDate || '', r.relation || '',
-    r.amountDue || '', r.receiptAmount || '', r.pendingAmount || '', r.receiptStatus || '',
+    r.feeType || '', r.amountDue || '', r.receiptAmount || '', r.pendingAmount || '', r.receiptStatus || '',
     r.receivedDate || '', r.receivedInBank || '', r.tallyEntryStatus || '',
     r.financialYear, r.auditType, r.priority, r.assignedTo, r.internalNotes
   ]);
@@ -88,3 +88,35 @@ export const STATUSES = [
 ];
 
 export const PRIORITIES = ['High', 'Medium', 'Low'];
+
+export const RELATIONS = [
+  'ALPHA - DAMAN',
+  'ALPHA - SURAT',
+  'AVI - SHISHIR',
+  'CHHATRALA',
+  "FATHER/S CUSTOMER",
+  'FRIENDS',
+  'G A FOOD',
+  'KALPESH MARFATIA',
+  'KISHOR SIR',
+  'MASTERMIND',
+  'OTHERS',
+  'OWN FAMILY',
+  'RELATIVE',
+  'SHANKAR MITTAL',
+  'SNK',
+  'SUNILBHAI',
+  'SUPARNA',
+  'TULIPSTAR'
+];
+
+export const BANKS = [
+  'CHITRA - SBI',
+  'CHITRA - HDFC',
+  'MAYANK - SBI',
+  'MAYANK - HDFC',
+  'HARSHI - SBI',
+  'OTHERS'
+];
+
+export const FEE_TYPES = ['PAID', 'FREE'];

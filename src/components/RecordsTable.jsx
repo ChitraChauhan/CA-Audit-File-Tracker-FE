@@ -52,13 +52,20 @@ export default function RecordsTable({
   const columns = [
     { field: 'id', label: 'File ID' },
     { field: 'clientName', label: 'Client' },
-    { field: 'auditType', label: 'Audit Type' },
+    { field: 'auditType', label: 'Work Type' },
     { field: 'financialYear', label: 'FY' },
-    { field: 'filesReceived', label: 'Received' },
+    { field: 'filingDate', label: 'Filing Date' },
+    { field: 'relation', label: 'Group' },
+    { field: 'feeType', label: 'Fee Type' },
+    { field: 'amountDue', label: 'Amount Due' },
+    { field: 'receiptAmount', label: 'Received Amount' },
+    { field: 'pendingAmount', label: 'Pending Amount' },
+    { field: 'receiptStatus', label: 'Payment Status' },
+    { field: 'receivedDate', label: 'Received Date' },
+    { field: 'receivedInBank', label: 'Received In Bank' },
+    { field: 'tallyEntryStatus', label: 'Tally Entry Status' },
     { field: 'returned', label: 'Returned' },
     { field: 'balance', label: 'Balance' },
-    { field: 'assignedTo', label: 'Assigned To' },
-    { field: 'expectedReturnDate', label: 'Expected Return' },
     { field: 'status', label: 'Status' },
     { field: 'priority', label: 'Priority' }
   ];
@@ -99,6 +106,7 @@ export default function RecordsTable({
               else if (returned) rowCls = 'row-returned';
 
               const bal = balanceOf(rec);
+              const pendingAmount = (rec.amountDue || 0) - (rec.receiptAmount || 0);
 
               return (
                 <tr key={rec.id || rec._id} className={rowCls}>
@@ -109,15 +117,18 @@ export default function RecordsTable({
                   </td>
                   <td>{rec.auditType}</td>
                   <td>{rec.financialYear}</td>
-                  <td>{rec.filesReceived}</td>
+                  <td>{fmtDate(rec.filingDate)}</td>
+                  <td>{rec.relation || '—'}</td>
+                  <td>{rec.feeType || '—'}</td>
+                  <td>{rec.amountDue || '—'}</td>
+                  <td>{rec.receiptAmount || '—'}</td>
+                  <td>{pendingAmount > 0 ? pendingAmount : '—'}</td>
+                  <td>{rec.receiptStatus || '—'}</td>
+                  <td>{fmtDate(rec.receivedDate)}</td>
+                  <td>{rec.receivedInBank || '—'}</td>
+                  <td>{rec.tallyEntryStatus || '—'}</td>
                   <td>{returnedCount(rec)}</td>
                   <td>{renderBalanceBadge(rec)}</td>
-                  <td>{rec.assignedTo || '—'}</td>
-                  <td>
-                    {fmtDate(rec.expectedReturnDate)}
-                    {overdue ? ' ⚠️' : ''}
-                    {dueToday ? ' ⏰' : ''}
-                  </td>
                   <td>{renderStatusBadge(rec)}</td>
                   <td>{renderPriorityBadge(rec.priority)}</td>
                   <td className="remarks-cell" title={rec.internalNotes || ''}>
