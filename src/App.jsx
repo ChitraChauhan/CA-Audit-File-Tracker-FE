@@ -77,10 +77,11 @@ export default function App() {
 
   const loadData = useCallback(async () => {
     try {
+      const activeFinancialYear = selectedYear || defaultFY();
       const queryParams = {
         ...filters,
-        financialYear: selectedYear,
-        summaryFilter: activeSummaryFilter,
+        financialYear: activeFinancialYear,
+        ...(activeSummaryFilter && activeSummaryFilter !== 'all' ? { summaryFilter: activeSummaryFilter } : {}),
         sortField,
         sortDir
       };
