@@ -18,7 +18,7 @@ import {
   seedAuditRecords
 } from './utils/api.js';
 
-import { toCSV, downloadCSV, todayStr, balanceOf, returnedCount } from './utils/helpers.js';
+import { toCSV, downloadCSV, todayStr, balanceOf, returnedCount, defaultFY } from './utils/helpers.js';
 
 export default function App() {
   const [records, setRecords] = useState([]);
@@ -34,6 +34,7 @@ export default function App() {
   });
 
   const [lastUpdated, setLastUpdated] = useState('');
+  const [selectedYear, setSelectedYear] = useState(defaultFY());
   const [activeSummaryFilter, setActiveSummaryFilter] = useState('all');
   const [sortField, setSortField] = useState('expectedReturnDate');
   const [sortDir, setSortDir] = useState('asc');
@@ -43,7 +44,6 @@ export default function App() {
     auditType: '',
     status: '',
     priority: '',
-    financialYear: '',
     recvFrom: '',
     recvTo: '',
     expFrom: '',
@@ -79,6 +79,7 @@ export default function App() {
     try {
       const queryParams = {
         ...filters,
+        financialYear: selectedYear,
         summaryFilter: activeSummaryFilter,
         sortField,
         sortDir
@@ -96,7 +97,7 @@ export default function App() {
       console.error(err);
       addToast(err.message || 'Failed to load records', 'danger');
     }
-  }, [filters, activeSummaryFilter, sortField, sortDir]);
+  }, [filters, selectedYear, activeSummaryFilter, sortField, sortDir]);
 
   useEffect(() => {
     loadData();
@@ -113,7 +114,6 @@ export default function App() {
       auditType: '',
       status: '',
       priority: '',
-      financialYear: '',
       recvFrom: '',
       recvTo: '',
       expFrom: '',
@@ -224,6 +224,8 @@ export default function App() {
     <div>
       <Header
         lastUpdated={lastUpdated}
+        selectedYear={selectedYear}
+        onYearChange={setSelectedYear}
         onPrint={() => window.print()}
         onExportAll={handleExportAll}
         onNewFile={() => {

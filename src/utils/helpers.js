@@ -28,6 +28,8 @@ export const fyOptions = () => {
   return out.reverse();
 };
 
+export const defaultFY = () => currentFY();
+
 export const returnedCount = (rec) => {
   return (rec.returnHistory || []).reduce((s, r) => s + Number(r.count || 0), 0);
 };
