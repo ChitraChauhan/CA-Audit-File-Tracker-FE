@@ -1,4 +1,4 @@
-const API_BASE = import.meta.env.VITE_API_BASE || '/api';
+const API_BASE = 'https://ca-audit-file-tracker-be.onrender.com';
 
 export const fetchAuditFiles = async (params = {}) => {
   const query = new URLSearchParams();
