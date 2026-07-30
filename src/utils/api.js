@@ -1,4 +1,4 @@
-const API_BASE = 'https://ca-audit-file-tracker-be.onrender.com';
+const API_BASE = 'https://ca-audit-file-tracker-be.onrender.com/api';
 
 export const fetchAuditFiles = async (params = {}) => {
   const query = new URLSearchParams();
