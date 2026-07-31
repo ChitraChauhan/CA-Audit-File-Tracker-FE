@@ -55,6 +55,7 @@ export default function App() {
     q: ''
   });
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   const handleToggleSidebar = () => {
@@ -98,6 +99,7 @@ export default function App() {
   };
 
   const loadData = useCallback(async () => {
+    setLoading(true);
     try {
       const activeFinancialYear = selectedYear || defaultFY();
       const queryParams = {
@@ -119,6 +121,8 @@ export default function App() {
     } catch (err) {
       console.error(err);
       addToast(err.message || 'Failed to load records', 'danger');
+    } finally {
+      setLoading(false);
     }
   }, [filters, selectedYear, activeSummaryFilter, sortField, sortDir]);
 
@@ -164,9 +168,15 @@ export default function App() {
   };
 
   const handleWorkTypeSelect = (type) => {
+    setLoading(true);
     setFilters(prev => ({ ...prev, auditType: type }));
     setSidebarOpen(false);
     setSidebarCollapsed(false);
+  };
+
+  const handleYearChange = (year) => {
+    setLoading(true);
+    setSelectedYear(year);
   };
 
   // CRUD Handlers
@@ -251,6 +261,20 @@ export default function App() {
 
   return (
     <div className={`app-shell ${sidebarOpen ? 'sidebar-open' : ''}`}>
+      <div
+        className={`loading-overlay ${loading ? 'visible' : ''}`}
+        style={{
+          opacity: loading ? 1 : 0,
+          visibility: loading ? 'visible' : 'hidden',
+          pointerEvents: loading ? 'all' : 'none'
+        }}
+      >
+        <div className="loading-box">
+          <div className="spinner" />
+          <span>Loading data…</span>
+        </div>
+      </div>
+
       <Sidebar
         open={sidebarOpen}
         collapsed={sidebarCollapsed}
@@ -263,7 +287,7 @@ export default function App() {
         <Header
           lastUpdated={lastUpdated}
           selectedYear={selectedYear}
-          onYearChange={setSelectedYear}
+          onYearChange={handleYearChange}
           onPrint={() => window.print()}
           onExportAll={handleExportAll}
           onNewFile={() => {
@@ -314,6 +338,7 @@ export default function App() {
           onClearAll={handleClearAll}
         />
         </div>
+
         <footer className="app-footer">
           Made with ❤️ by Chitra Mayank Sankariya
         </footer>
