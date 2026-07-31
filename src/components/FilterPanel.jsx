@@ -1,5 +1,5 @@
 import React from 'react';
-import { AUDIT_TYPES, STATUSES, PRIORITIES } from '../utils/helpers.js';
+import { STATUSES, PRIORITIES } from '../utils/helpers.js';
 
 export default function FilterPanel({
   filters,
@@ -7,7 +7,6 @@ export default function FilterPanel({
   onReset,
   onExportView,
   staffList,
-  yearList,
   filteredCount,
   totalCount,
   totalPending,
@@ -43,15 +42,6 @@ export default function FilterPanel({
             </select>
           </div>
           <div className="field">
-            <label>Audit Type</label>
-            <select id="auditType" value={filters.auditType} onChange={handleChange}>
-              <option value="">All Types</option>
-              {AUDIT_TYPES.map(t => (
-                <option key={t} value={t}>{t}</option>
-              ))}
-            </select>
-          </div>
-          <div className="field">
             <label>Status</label>
             <select id="status" value={filters.status} onChange={handleChange}>
               <option value="">All Statuses</option>
@@ -66,15 +56,6 @@ export default function FilterPanel({
               <option value="">All Priorities</option>
               {PRIORITIES.map(p => (
                 <option key={p} value={p}>{p}</option>
-              ))}
-            </select>
-          </div>
-          <div className="field">
-            <label>Financial Year</label>
-            <select id="financialYear" value={filters.financialYear} onChange={handleChange}>
-              <option value="">All Years</option>
-              {yearList.map(y => (
-                <option key={y} value={y}>{y}</option>
               ))}
             </select>
           </div>

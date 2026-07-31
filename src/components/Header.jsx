@@ -1,9 +1,12 @@
 import React from 'react';
 import { fyOptions, defaultFY } from '../utils/helpers.js';
 
-export default function Header({ lastUpdated, onPrint, onExportAll, onNewFile, selectedYear, onYearChange }) {
+export default function Header({ lastUpdated, onPrint, onExportAll, onNewFile, selectedYear, onYearChange, onToggleSidebar }) {
   return (
     <header className="app-header">
+      <button className="icon-btn sidebar-toggle" onClick={onToggleSidebar}>
+        ☰
+      </button>
       <div className="brand">
         <div className="brand-mark">CA</div>
         <div className="brand-text">

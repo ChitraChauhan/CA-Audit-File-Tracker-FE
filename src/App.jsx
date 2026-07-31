@@ -3,6 +3,7 @@ import Header from './components/Header.jsx';
 import SummaryCards from './components/SummaryCards.jsx';
 import FilterPanel from './components/FilterPanel.jsx';
 import RecordsTable from './components/RecordsTable.jsx';
+import Sidebar from './components/Sidebar.jsx';
 import FileModal from './components/FileModal.jsx';
 import ReturnModal from './components/ReturnModal.jsx';
 import DetailsModal from './components/DetailsModal.jsx';
@@ -53,6 +54,27 @@ export default function App() {
     onlyOverdue: false,
     q: ''
   });
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+
+  const handleToggleSidebar = () => {
+    const isDesktop = window.matchMedia('(min-width: 1231px)').matches;
+    if (isDesktop) {
+      setSidebarCollapsed(prev => !prev);
+      if (sidebarOpen) setSidebarOpen(false);
+    } else {
+      setSidebarOpen(prev => !prev);
+    }
+  };
+
+  const handleCloseSidebar = () => {
+    const isDesktop = window.matchMedia('(min-width: 1231px)').matches;
+    if (isDesktop) {
+      setSidebarCollapsed(true);
+    } else {
+      setSidebarOpen(false);
+    }
+  };
 
   // Modal States
   const [fileModalOpen, setFileModalOpen] = useState(false);
@@ -141,6 +163,12 @@ export default function App() {
     }
   };
 
+  const handleWorkTypeSelect = (type) => {
+    setFilters(prev => ({ ...prev, auditType: type }));
+    setSidebarOpen(false);
+    setSidebarCollapsed(false);
+  };
+
   // CRUD Handlers
   const handleSaveRecord = async (formData) => {
     try {
@@ -222,25 +250,35 @@ export default function App() {
   const totalReturned = records.reduce((s, r) => s + returnedCount(r), 0);
 
   return (
-    <div>
-      <Header
-        lastUpdated={lastUpdated}
-        selectedYear={selectedYear}
-        onYearChange={setSelectedYear}
-        onPrint={() => window.print()}
-        onExportAll={handleExportAll}
-        onNewFile={() => {
-          setEditingRecord(null);
-          setFileModalOpen(true);
-        }}
+    <div className={`app-shell ${sidebarOpen ? 'sidebar-open' : ''}`}>
+      <Sidebar
+        open={sidebarOpen}
+        collapsed={sidebarCollapsed}
+        selectedType={filters.auditType}
+        onSelectType={handleWorkTypeSelect}
+        onToggleCollapse={() => setSidebarCollapsed(prev => !prev)}
       />
 
-      <div className="container">
-        <SummaryCards
-          stats={stats}
-          activeFilter={activeSummaryFilter}
-          onCardClick={handleCardClick}
+      <div className="main-layout">
+        <Header
+          lastUpdated={lastUpdated}
+          selectedYear={selectedYear}
+          onYearChange={setSelectedYear}
+          onPrint={() => window.print()}
+          onExportAll={handleExportAll}
+          onNewFile={() => {
+            setEditingRecord(null);
+            setFileModalOpen(true);
+          }}
+          onToggleSidebar={handleToggleSidebar}
         />
+
+        <div className="container">
+          <SummaryCards
+            stats={stats}
+            activeFilter={activeSummaryFilter}
+            onCardClick={handleCardClick}
+          />
 
         <FilterPanel
           filters={filters}
@@ -275,7 +313,13 @@ export default function App() {
           onDelete={handleDeleteRecord}
           onClearAll={handleClearAll}
         />
+        </div>
+        <footer className="app-footer">
+          Made with ❤️ by Chitra Mayank Sankariya
+        </footer>
       </div>
+
+      <div className="sidebar-overlay" onClick={() => setSidebarOpen(false)} />
 
       {/* Modals */}
       <FileModal
@@ -315,11 +359,6 @@ export default function App() {
           </div>
         ))}
       </div>
-
-      {/* Footer */}
-      <footer className="app-footer">
-        Made with ❤️ by Chitra Mayank Sankariya
-      </footer>
     </div>
   );
 }
