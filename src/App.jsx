@@ -4,11 +4,15 @@ import SummaryCards from './components/SummaryCards.jsx';
 import FilterPanel from './components/FilterPanel.jsx';
 import RecordsTable from './components/RecordsTable.jsx';
 import Sidebar from './components/Sidebar.jsx';
+import AuthPage from './components/AuthPage.jsx';
 import FileModal from './components/FileModal.jsx';
 import ReturnModal from './components/ReturnModal.jsx';
 import DetailsModal from './components/DetailsModal.jsx';
 
 import {
+  loginUser,
+  registerUser,
+  getMe,
   fetchAuditFiles,
   fetchSummaryStats,
   createAuditFile,
@@ -55,8 +59,10 @@ export default function App() {
     q: ''
   });
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [authLoading, setAuthLoading] = useState(true);
+  const [user, setUser] = useState(null);
 
   const handleToggleSidebar = () => {
     const isDesktop = window.matchMedia('(min-width: 1231px)').matches;
@@ -126,9 +132,82 @@ export default function App() {
     }
   }, [filters, selectedYear, activeSummaryFilter, sortField, sortDir]);
 
+  const bootstrapAuth = useCallback(async () => {
+    setAuthLoading(true);
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      setAuthLoading(false);
+      return;
+    }
+
+    try {
+      const response = await getMe();
+      setUser(response.user);
+    } catch (error) {
+      console.warn('Auth bootstrap failed:', error.message || error);
+      localStorage.removeItem('authToken');
+      setUser(null);
+    } finally {
+      setAuthLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
+    bootstrapAuth();
+  }, [bootstrapAuth]);
+
+  useEffect(() => {
+    if (!user) {
+      setLoading(false);
+      return;
+    }
+
     loadData();
-  }, [loadData]);
+  }, [loadData, user]);
+
+  const handleLogin = async (credentials) => {
+    setLoading(true);
+    try {
+      const response = await loginUser(credentials);
+      localStorage.setItem('authToken', response.token);
+      setUser(response.user);
+    } catch (error) {
+      throw new Error(error.message || 'Login failed.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSignup = async (data) => {
+    setLoading(true);
+    try {
+      const response = await registerUser(data);
+      localStorage.setItem('authToken', response.token);
+      setUser(response.user);
+    } catch (error) {
+      throw new Error(error.message || 'Signup failed.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('authToken');
+    setUser(null);
+    setRecords([]);
+    setStats({
+      totalReceivedFiles: 0,
+      withUsFiles: 0,
+      returnedFiles: 0,
+      overdueCount: 0,
+      dueTodayCount: 0,
+      wipCount: 0,
+      staffList: [],
+      yearList: []
+    });
+    setLastUpdated('');
+    setLoading(false);
+  };
 
   // Handler for Filter Changes
   const handleFilterChange = (field, value) => {
@@ -259,6 +338,23 @@ export default function App() {
   const totalPending = records.reduce((s, r) => s + balanceOf(r), 0);
   const totalReturned = records.reduce((s, r) => s + returnedCount(r), 0);
 
+  if (authLoading) {
+    return (
+      <div className="app-shell auth-loading">
+        <div className="loading-overlay visible">
+          <div className="loading-box">
+            <div className="spinner" />
+            <span>Checking authentication…</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <AuthPage onLogin={handleLogin} onSignup={handleSignup} />;
+  }
+
   return (
     <div className={`app-shell ${sidebarOpen ? 'sidebar-open' : ''}`}>
       <div
@@ -295,6 +391,8 @@ export default function App() {
             setFileModalOpen(true);
           }}
           onToggleSidebar={handleToggleSidebar}
+          onLogout={handleLogout}
+          user={user}
         />
 
         <div className="container">
@@ -304,20 +402,20 @@ export default function App() {
             onCardClick={handleCardClick}
           />
 
-        <FilterPanel
-          filters={filters}
-          onChange={handleFilterChange}
-          onReset={handleResetFilters}
-          onExportView={handleExportView}
-          staffList={stats.staffList || []}
-          yearList={stats.yearList || []}
-          filteredCount={records.length}
-          totalCount={stats.totalRecordsCount || 0}
-          totalPending={totalPending}
-          totalReturned={totalReturned}
-        />
+          <FilterPanel
+            filters={filters}
+            onChange={handleFilterChange}
+            onReset={handleResetFilters}
+            onExportView={handleExportView}
+            staffList={stats.staffList || []}
+            yearList={stats.yearList || []}
+            filteredCount={records.length}
+            totalCount={stats.totalRecordsCount || 0}
+            totalPending={totalPending}
+            totalReturned={totalReturned}
+          />
 
-        <RecordsTable
+          <RecordsTable
           records={records}
           sortField={sortField}
           sortDir={sortDir}

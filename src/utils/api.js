@@ -1,4 +1,59 @@
-const API_BASE = 'https://ca-audit-file-tracker-be.onrender.com/api';
+const API_BASE = 'http://localhost:5000/api' || 'https://ca-audit-file-tracker-be.onrender.com/api';
+
+const getToken = () => localStorage.getItem('authToken') || '';
+
+const buildHeaders = (shouldUseJson = true) => {
+  const headers = {};
+  if (shouldUseJson) {
+    headers['Content-Type'] = 'application/json';
+  }
+  const token = getToken();
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+  return headers;
+};
+
+const handleResponse = async (res) => {
+  const data = await res.json().catch(() => null);
+  if (!res.ok) {
+    throw new Error(data?.message || 'Request failed');
+  }
+  return data;
+};
+
+const authFetch = async (path, options = {}) => {
+  const opts = {
+    ...options,
+    headers: {
+      ...buildHeaders(options.body !== undefined),
+      ...(options.headers || {})
+    }
+  };
+  return handleResponse(await fetch(`${API_BASE}${path}`, opts));
+};
+
+export const loginUser = async (credentials) => {
+  return handleResponse(
+    await fetch(`${API_BASE}/auth/login`, {
+      method: 'POST',
+      headers: buildHeaders(true),
+      body: JSON.stringify(credentials)
+    })
+  );
+};
+
+export const registerUser = async (data) => {
+  return handleResponse(
+    await fetch(`${API_BASE}/auth/register`, {
+      method: 'POST',
+      headers: buildHeaders(true),
+      body: JSON.stringify(data)
+    })
+  );
+};
+
+export const getMe = async () => authFetch('/auth/me', { method: 'GET' });
 
 export const fetchAuditFiles = async (params = {}) => {
   const query = new URLSearchParams();
@@ -8,80 +63,58 @@ export const fetchAuditFiles = async (params = {}) => {
     }
   });
 
-  const res = await fetch(`${API_BASE}/audit-files?${query.toString()}`);
-  if (!res.ok) throw new Error('Failed to fetch records');
-  return res.json();
+  return authFetch(`/audit-files?${query.toString()}`, {
+    method: 'GET'
+  });
 };
 
 export const fetchAuditFileById = async (id) => {
-  const res = await fetch(`${API_BASE}/audit-files/${id}`);
-  if (!res.ok) throw new Error('Failed to fetch record');
-  return res.json();
+  return authFetch(`/audit-files/${id}`, {
+    method: 'GET'
+  });
 };
 
 export const createAuditFile = async (data) => {
-  const res = await fetch(`${API_BASE}/audit-files`, {
+  return authFetch('/audit-files', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data)
   });
-  if (!res.ok) {
-    const err = await res.json();
-    throw new Error(err.message || 'Failed to create record');
-  }
-  return res.json();
 };
 
 export const updateAuditFile = async (id, data) => {
-  const res = await fetch(`${API_BASE}/audit-files/${id}`, {
+  return authFetch(`/audit-files/${id}`, {
     method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data)
   });
-  if (!res.ok) {
-    const err = await res.json();
-    throw new Error(err.message || 'Failed to update record');
-  }
-  return res.json();
 };
 
 export const returnAuditFiles = async (id, returnData) => {
-  const res = await fetch(`${API_BASE}/audit-files/${id}/return`, {
+  return authFetch(`/audit-files/${id}/return`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(returnData)
   });
-  if (!res.ok) {
-    const err = await res.json();
-    throw new Error(err.message || 'Failed to record return');
-  }
-  return res.json();
 };
 
 export const deleteAuditFile = async (id) => {
-  const res = await fetch(`${API_BASE}/audit-files/${id}`, {
+  return authFetch(`/audit-files/${id}`, {
     method: 'DELETE'
   });
-  if (!res.ok) throw new Error('Failed to delete record');
-  return res.json();
 };
 
 export const clearAllAuditFiles = async () => {
-  const res = await fetch(`${API_BASE}/audit-files`, {
+  return authFetch('/audit-files', {
     method: 'DELETE'
   });
-  if (!res.ok) throw new Error('Failed to clear records');
-  return res.json();
 };
 
 export const fetchSummaryStats = async () => {
-  const res = await fetch(`${API_BASE}/stats`);
-  if (!res.ok) throw new Error('Failed to fetch stats');
-  return res.json();
+  return authFetch('/stats', {
+    method: 'GET'
+  });
 };
 
 export const seedAuditRecords = async () => {
-  const res = await fetch(`${API_BASE}/seed`, { method: 'POST' });
-  if (!res.ok) throw new Error('Failed to seed records');
-  return res.json();
+  return authFetch('/seed', {
+    method: 'POST'
+  });
 };

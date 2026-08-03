@@ -48,3 +48,4 @@ export default function Sidebar({ open, collapsed, selectedType, onSelectType, o
     </aside>
   );
 }
+    

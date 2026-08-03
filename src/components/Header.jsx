@@ -1,7 +1,7 @@
 import React from 'react';
 import { fyOptions, defaultFY } from '../utils/helpers.js';
 
-export default function Header({ lastUpdated, onPrint, onExportAll, onNewFile, selectedYear, onYearChange, onToggleSidebar }) {
+export default function Header({ lastUpdated, onPrint, onExportAll, onNewFile, selectedYear, onYearChange, onToggleSidebar, onLogout, user }) {
   return (
     <header className="app-header">
       <button className="icon-btn sidebar-toggle" onClick={onToggleSidebar}>
@@ -10,6 +10,7 @@ export default function Header({ lastUpdated, onPrint, onExportAll, onNewFile, s
       <div className="brand">
         <div className="brand-mark">CA</div>
         <div className="brand-text">
+          {user && <div className="header-user">{user.name}</div>}
           <h1>Smart CA Tracker</h1>
           <span>Physical File Movement & Tracking System</span>
         </div>
@@ -35,6 +36,9 @@ export default function Header({ lastUpdated, onPrint, onExportAll, onNewFile, s
         </button>
         <button className="btn btn-primary" onClick={onNewFile}>
           ＋ New Audit File
+        </button>
+        <button className="btn btn-danger-outline btn-sm" onClick={onLogout}>
+          Logout
         </button>
       </div>
     </header>
