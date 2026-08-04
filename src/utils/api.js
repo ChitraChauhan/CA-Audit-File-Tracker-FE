@@ -74,6 +74,13 @@ export const fetchAuditFileById = async (id) => {
   });
 };
 
+export const updateUser = async (data) => {
+  return authFetch('/auth/me', {
+    method: 'PATCH',
+    body: JSON.stringify(data)
+  });
+};
+
 export const createAuditFile = async (data) => {
   return authFetch('/audit-files', {
     method: 'POST',
