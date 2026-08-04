@@ -1,4 +1,4 @@
-const API_BASE = 'http://localhost:5000/api' || 'https://ca-audit-file-tracker-be.onrender.com/api';
+const API_BASE = 'https://ca-audit-file-tracker-be.onrender.com/api';
 
 const getToken = () => localStorage.getItem('authToken') || '';
 
