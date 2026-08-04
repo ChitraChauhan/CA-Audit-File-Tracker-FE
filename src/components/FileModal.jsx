@@ -31,6 +31,7 @@ export default function FileModal({ isOpen, record, onClose, onSave }) {
   });
 
   const [errors, setErrors] = useState({});
+  const isEditing = Boolean(record);
 
   useEffect(() => {
     if (record) {
@@ -297,84 +298,88 @@ export default function FileModal({ isOpen, record, onClose, onSave }) {
               </div>
             </div>
 
-            {/* PAYMENT INFORMATION */}
-            <div className="form-section-title">PAYMENT INFORMATION</div>
-            <div className="form-grid three">
-              <div className="field">
-                <label>AMOUNT DUE</label>
-                <input
-                  type="number"
-                  id="amountDue"
-                  value={formData.amountDue}
-                  onChange={handleChange}
-                  placeholder="0.00"
-                  step="0.01"
-                />
-              </div>
+            {isEditing && (
+              <>
+                {/* PAYMENT INFORMATION */}
+                <div className="form-section-title">PAYMENT INFORMATION</div>
+                <div className="form-grid three">
+                  <div className="field">
+                    <label>AMOUNT DUE</label>
+                    <input
+                      type="number"
+                      id="amountDue"
+                      value={formData.amountDue}
+                      onChange={handleChange}
+                      placeholder="0.00"
+                      step="0.01"
+                    />
+                  </div>
 
-              <div className="field">
-                <label>RECEIVED AMOUNT</label>
-                <input
-                  type="number"
-                  id="receiptAmount"
-                  value={formData.receiptAmount}
-                  onChange={handleChange}
-                  placeholder="0.00"
-                  step="0.01"
-                />
-              </div>
+                  <div className="field">
+                    <label>RECEIVED AMOUNT</label>
+                    <input
+                      type="number"
+                      id="receiptAmount"
+                      value={formData.receiptAmount}
+                      onChange={handleChange}
+                      placeholder="0.00"
+                      step="0.01"
+                    />
+                  </div>
 
-              <div className="field">
-                <label>PENDING AMOUNT</label>
-                <input
-                  type="number"
-                  id="pendingAmount"
-                  value={(formData.amountDue || 0) - (formData.receiptAmount || 0)}
-                  disabled
-                  className="disabled"
-                />
-              </div>
+                  <div className="field">
+                    <label>PENDING AMOUNT</label>
+                    <input
+                      type="number"
+                      id="pendingAmount"
+                      value={(formData.amountDue || 0) - (formData.receiptAmount || 0)}
+                      disabled
+                      className="disabled"
+                    />
+                  </div>
 
-              <div className="field">
-                <label>PAYMENT STATUS</label>
-                <select id="receiptStatus" value={formData.receiptStatus} onChange={handleChange}>
-                  <option value="">Select Status</option>
-                  <option value="Pending">Pending</option>
-                  <option value="Partial">Partial</option>
-                  <option value="Cleared">Cleared</option>
-                </select>
-              </div>
+                  <div className="field">
+                    <label>PAYMENT STATUS</label>
+                    <select id="receiptStatus" value={formData.receiptStatus} onChange={handleChange}>
+                      <option value="">Select Status</option>
+                      <option value="Pending">Pending</option>
+                      <option value="Partial">Partial</option>
+                      <option value="Cleared">Cleared</option>
+                    </select>
+                  </div>
 
-              <div className="field">
-                <label>RECEIVED DATE</label>
-                <input
-                  type="date"
-                  id="receivedDate"
-                  value={formData.receivedDate}
-                  onChange={handleChange}
-                />
-              </div>
+                  <div className="field">
+                    <label>RECEIVED DATE</label>
+                    <input
+                      type="date"
+                      id="receivedDate"
+                      value={formData.receivedDate}
+                      onChange={handleChange}
+                    />
+                  </div>
 
-              <div className="field">
-                <label>RECEIVED IN BANK</label>
-                <select id="receivedInBank" value={formData.receivedInBank} onChange={handleChange}>
-                  <option value="">Select Bank</option>
-                  {BANKS.map(b => (
-                    <option key={b} value={b}>{b}</option>
-                  ))}
-                </select>
-              </div>
+                  <div className="field">
+                    <label>RECEIVED IN BANK</label>
+                    <select id="receivedInBank" value={formData.receivedInBank} onChange={handleChange}>
+                      <option value="">Select Bank</option>
+                      {BANKS.map(b => (
+                        <option key={b} value={b}>{b}</option>
+                      ))}
+                    </select>
+                  </div>
 
-              <div className="field">
-                <label>TALLY ENTRY STATUS</label>
-                <select id="tallyEntryStatus" value={formData.tallyEntryStatus} onChange={handleChange}>
-                  <option value="">Select Status</option>
-                  <option value="Pending">Pending</option>
-                  <option value="Done">Done</option>
-                  <option value="Not Required">Not Required</option>
-                </select>
-              </div>
-            </div>
+                  <div className="field">
+                    <label>TALLY ENTRY STATUS</label>
+                    <select id="tallyEntryStatus" value={formData.tallyEntryStatus} onChange={handleChange}>
+                      <option value="">Select Status</option>
+                      <option value="Pending">Pending</option>
+                      <option value="Done">Done</option>
+                      <option value="Not Required">Not Required</option>
+                    </select>
+                  </div>
+                </div>
+              </>
+            )}
 
             {/* REMARKS */}
             <div className="form-section-title">REMARKS</div>

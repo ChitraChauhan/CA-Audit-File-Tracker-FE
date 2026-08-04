@@ -53,11 +53,19 @@ export default function App() {
     recvTo: '',
     expFrom: '',
     expTo: '',
+    amountDue: '',
+    receiptAmount: '',
+    receiptStatus: '',
+    paidFrom: '',
+    paidTo: '',
+    receivedInBank: '',
+    tallyEntryStatus: '',
     onlyPending: false,
     onlyReturned: false,
     onlyOverdue: false,
     q: ''
   });
+  const [debouncedFilters, setDebouncedFilters] = useState(filters);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -104,12 +112,20 @@ export default function App() {
     }, 2800);
   };
 
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setDebouncedFilters(filters);
+    }, 1000);
+
+    return () => window.clearTimeout(timer);
+  }, [filters]);
+
   const loadData = useCallback(async () => {
     setLoading(true);
     try {
       const activeFinancialYear = selectedYear || defaultFY();
       const queryParams = {
-        ...filters,
+        ...debouncedFilters,
         financialYear: activeFinancialYear,
         ...(activeSummaryFilter && activeSummaryFilter !== 'all' ? { summaryFilter: activeSummaryFilter } : {}),
         sortField,
@@ -130,7 +146,7 @@ export default function App() {
     } finally {
       setLoading(false);
     }
-  }, [filters, selectedYear, activeSummaryFilter, sortField, sortDir]);
+  }, [debouncedFilters, selectedYear, activeSummaryFilter, sortField, sortDir]);
 
   const bootstrapAuth = useCallback(async () => {
     setAuthLoading(true);
@@ -224,6 +240,13 @@ export default function App() {
       recvTo: '',
       expFrom: '',
       expTo: '',
+      amountDue: '',
+      receiptAmount: '',
+      receiptStatus: '',
+      paidFrom: '',
+      paidTo: '',
+      receivedInBank: '',
+      tallyEntryStatus: '',
       onlyPending: false,
       onlyReturned: false,
       onlyOverdue: false,
@@ -438,7 +461,8 @@ export default function App() {
         </div>
 
         <footer className="app-footer">
-          Made with ❤️ by Chitra Mayank Sankariya
+          <p>© 2026 Smart CA Tracker. All rights reserved.</p>
+          <p>Designed & Developed by Chitra Mayank Sankariya | Built with MERN Stack ❤️</p>
         </footer>
       </div>
 

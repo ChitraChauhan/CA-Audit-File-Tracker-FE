@@ -1,5 +1,8 @@
 import React from 'react';
-import { STATUSES, PRIORITIES } from '../utils/helpers.js';
+import { STATUSES, PRIORITIES, BANKS } from '../utils/helpers.js';
+
+const PAYMENT_STATUSES = ['Pending', 'Partial', 'Cleared'];
+const TALLY_STATUSES = ['Pending', 'Done', 'Not Required'];
 
 export default function FilterPanel({
   filters,
@@ -78,6 +81,52 @@ export default function FilterPanel({
           </div>
         </div>
 
+        <div className="filters-grid">
+          <div className="field">
+            <label>Amount Due</label>
+            <input type="number" id="amountDue" value={filters.amountDue} onChange={handleChange} placeholder="0.00" step="0.01" />
+          </div>
+          <div className="field">
+            <label>Receipt Amount</label>
+            <input type="number" id="receiptAmount" value={filters.receiptAmount} onChange={handleChange} placeholder="0.00" step="0.01" />
+          </div>
+          <div className="field">
+            <label>Payment Status</label>
+            <select id="receiptStatus" value={filters.receiptStatus} onChange={handleChange}>
+              <option value="">All Statuses</option>
+              {PAYMENT_STATUSES.map(s => (
+                <option key={s} value={s}>{s}</option>
+              ))}
+            </select>
+          </div>
+          <div className="field">
+            <label>Received Date From</label>
+            <input type="date" id="paidFrom" value={filters.paidFrom} onChange={handleChange} />
+          </div>
+          <div className="field">
+            <label>Received Date To</label>
+            <input type="date" id="paidTo" value={filters.paidTo} onChange={handleChange} />
+          </div>
+          <div className="field">
+            <label>Received In Bank</label>
+            <select id="receivedInBank" value={filters.receivedInBank} onChange={handleChange}>
+              <option value="">All Banks</option>
+              {BANKS.map(b => (
+                <option key={b} value={b}>{b}</option>
+              ))}
+            </select>
+          </div>
+          <div className="field">
+            <label>Tally Entry Status</label>
+            <select id="tallyEntryStatus" value={filters.tallyEntryStatus} onChange={handleChange}>
+              <option value="">All Statuses</option>
+              {TALLY_STATUSES.map(s => (
+                <option key={s} value={s}>{s}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+
         <div className="checks-line">
           <label className="checkbox-row">
             <input
@@ -114,7 +163,7 @@ export default function FilterPanel({
             id="q"
             value={filters.q}
             onChange={handleChange}
-            placeholder="🔍 Search by client name, client code, audit type, staff name or remarks..."
+            placeholder="🔍 Search by client name, client code, audit type, staff name, payment status or remarks..."
           />
         </div>
 
