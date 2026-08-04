@@ -8,6 +8,7 @@ import AuthPage from './components/AuthPage.jsx';
 import FileModal from './components/FileModal.jsx';
 import ReturnModal from './components/ReturnModal.jsx';
 import DetailsModal from './components/DetailsModal.jsx';
+import ProfilePage from './components/ProfilePage.jsx';
 
 import {
   loginUser,
@@ -17,6 +18,7 @@ import {
   fetchSummaryStats,
   createAuditFile,
   updateAuditFile,
+  updateUser,
   returnAuditFiles,
   deleteAuditFile,
   clearAllAuditFiles,
@@ -71,6 +73,7 @@ export default function App() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [authLoading, setAuthLoading] = useState(true);
   const [user, setUser] = useState(null);
+  const [activePage, setActivePage] = useState('dashboard');
 
   const handleToggleSidebar = () => {
     const isDesktop = window.matchMedia('(min-width: 1231px)').matches;
@@ -78,7 +81,10 @@ export default function App() {
       setSidebarCollapsed(prev => !prev);
       if (sidebarOpen) setSidebarOpen(false);
     } else {
-      setSidebarOpen(prev => !prev);
+      setSidebarOpen(true);
+      if (sidebarCollapsed) {
+        setSidebarCollapsed(false);
+      }
     }
   };
 
@@ -210,6 +216,7 @@ export default function App() {
   const handleLogout = () => {
     localStorage.removeItem('authToken');
     setUser(null);
+    setActivePage('dashboard');
     setRecords([]);
     setStats({
       totalReceivedFiles: 0,
@@ -223,6 +230,28 @@ export default function App() {
     });
     setLastUpdated('');
     setLoading(false);
+  };
+
+  const handleOpenProfile = () => {
+    setActivePage('profile');
+  };
+
+  const handleSaveProfile = async (profileData) => {
+    setLoading(true);
+    try {
+      const response = await updateUser(profileData);
+      localStorage.setItem('authToken', response.token);
+      setUser(response.user);
+      addToast('Profile updated successfully', 'success');
+    } catch (err) {
+      addToast(err.message || 'Failed to update profile', 'danger');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleBackToDashboard = () => {
+    setActivePage('dashboard');
   };
 
   // Handler for Filter Changes
@@ -415,49 +444,61 @@ export default function App() {
           }}
           onToggleSidebar={handleToggleSidebar}
           onLogout={handleLogout}
+          onProfileOpen={handleOpenProfile}
+          onLogoClick={() => setActivePage('dashboard')}
           user={user}
         />
 
         <div className="container">
-          <SummaryCards
-            stats={stats}
-            activeFilter={activeSummaryFilter}
-            onCardClick={handleCardClick}
-          />
+          {activePage === 'dashboard' ? (
+            <>
+              <SummaryCards
+                stats={stats}
+                activeFilter={activeSummaryFilter}
+                onCardClick={handleCardClick}
+              />
 
-          <FilterPanel
-            filters={filters}
-            onChange={handleFilterChange}
-            onReset={handleResetFilters}
-            onExportView={handleExportView}
-            staffList={stats.staffList || []}
-            yearList={stats.yearList || []}
-            filteredCount={records.length}
-            totalCount={stats.totalRecordsCount || 0}
-            totalPending={totalPending}
-            totalReturned={totalReturned}
-          />
+              <FilterPanel
+                filters={filters}
+                onChange={handleFilterChange}
+                onReset={handleResetFilters}
+                onExportView={handleExportView}
+                staffList={stats.staffList || []}
+                yearList={stats.yearList || []}
+                filteredCount={records.length}
+                totalCount={stats.totalRecordsCount || 0}
+                totalPending={totalPending}
+                totalReturned={totalReturned}
+              />
 
-          <RecordsTable
-          records={records}
-          sortField={sortField}
-          sortDir={sortDir}
-          onSort={handleSort}
-          onView={(rec) => {
-            setViewingRecord(rec);
-            setDetailsModalOpen(true);
-          }}
-          onEdit={(rec) => {
-            setEditingRecord(rec);
-            setFileModalOpen(true);
-          }}
-          onReturn={(rec) => {
-            setReturningRecord(rec);
-            setReturnModalOpen(true);
-          }}
-          onDelete={handleDeleteRecord}
-          onClearAll={handleClearAll}
-        />
+              <RecordsTable
+                records={records}
+                sortField={sortField}
+                sortDir={sortDir}
+                onSort={handleSort}
+                onView={(rec) => {
+                  setViewingRecord(rec);
+                  setDetailsModalOpen(true);
+                }}
+                onEdit={(rec) => {
+                  setEditingRecord(rec);
+                  setFileModalOpen(true);
+                }}
+                onReturn={(rec) => {
+                  setReturningRecord(rec);
+                  setReturnModalOpen(true);
+                }}
+                onDelete={handleDeleteRecord}
+                onClearAll={handleClearAll}
+              />
+            </>
+          ) : (
+            <ProfilePage
+              user={user}
+              onSave={handleSaveProfile}
+              onBack={handleBackToDashboard}
+            />
+          )}
         </div>
 
         <footer className="app-footer">

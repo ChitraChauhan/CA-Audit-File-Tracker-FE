@@ -79,9 +79,7 @@ export default function FilterPanel({
             <label>Expected Return To</label>
             <input type="date" id="expTo" value={filters.expTo} onChange={handleChange} />
           </div>
-        </div>
 
-        <div className="filters-grid">
           <div className="field">
             <label>Amount Due</label>
             <input type="number" id="amountDue" value={filters.amountDue} onChange={handleChange} placeholder="0.00" step="0.01" />
