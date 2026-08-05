@@ -105,10 +105,28 @@ body {
   align-items: center;
 }
 
+.header-actions .btn .btn-icon {
+  display: inline-block;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+.header-actions .btn .btn-label {
+  display: inline-block;
+}
+
+.header-actions .btn .btn-icon svg {
+  width: 18px;
+  height: 18px;
+  display: block;
+}
+
 .profile-menu-wrapper {
   position: relative;
   display: inline-flex;
+  z-index: 1200;
 }
+
 
 .profile-btn {
   display: inline-flex;
@@ -148,7 +166,7 @@ body {
   border: 1px solid var(--gray-200);
   border-radius: 14px;
   box-shadow: var(--shadow-md);
-  z-index: 250;
+  z-index: 1200;
   overflow: hidden;
 }
 
@@ -478,6 +496,40 @@ button {
 
   .auth-form-wrap {
     padding: 24px 18px;
+  }
+}
+
+/* Mobile: show only icons for the requested header actions */
+@media (max-width: 768px) {
+  .header-actions .year-filter,
+  .header-actions .header-meta,
+  .header-actions .btn:not(.keep-mobile) {
+    display: none !important;
+  }
+
+  .header-actions .btn.keep-mobile {
+    padding: 8px;
+  }
+
+  .header-actions .btn .btn-icon {
+    display: inline-block;
+    margin-right: 0;
+    font-size: 16px;
+  }
+
+  .header-actions .btn .btn-label {
+    display: none;
+  }
+
+  /* SVG sizing for header button icons */
+  .header-actions .btn .btn-icon svg {
+    width: 18px;
+    height: 18px;
+    display: block;
+  }
+
+  .profile-menu-wrapper .profile-label {
+    display: none;
   }
 }
 
@@ -1443,7 +1495,8 @@ td.remarks-cell {
 
 @media (max-width: 768px) {
   .app-header {
-    flex-wrap: wrap;
+    /* keep header items on one line at tablet widths */
+    flex-wrap: nowrap;
     gap: 12px;
     padding: 16px 18px;
     align-items: center;
@@ -1451,21 +1504,38 @@ td.remarks-cell {
   }
 
   .brand {
-    width: 100%;
+    width: auto;
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .brand-text span {
+    display: none; /* hide subtitle to save space */
   }
 
   .header-actions {
-    width: 100%;
+    margin-left: auto;
+  }
+
+  /* Keep header icons in a single row; allow horizontal scroll if too wide */
+  .header-actions {
+    width: auto;
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     gap: 8px;
     justify-content: flex-start;
     align-items: center;
+    overflow-x: auto;
+    overflow-y: visible; /* allow dropdowns to render outside the scroll container */
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 4px;
   }
 
   .header-actions > * {
-    min-width: 120px;
-    flex: 1 1 auto;
+    min-width: 0;
+    flex: 0 0 auto;
   }
 
   .header-actions .btn,
@@ -1473,6 +1543,31 @@ td.remarks-cell {
     justify-content: center;
   }
 
+
+/* Ensure desktop-like row layout for mid-size screens (426px - 768px)
+   so centering only applies under 425px. */
+@media (max-width: 425px) {
+  .app-header {
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .brand {
+    width: auto;
+    flex: 0 0 auto;
+  }
+
+  .brand-text span {
+    display: inline;
+  }
+
+  .header-actions {
+    margin-left: auto;
+    justify-content: flex-start;
+  }
+}
   .header-meta {
     text-align: left;
     margin-right: 0;
@@ -1629,7 +1724,67 @@ td.remarks-cell {
   .modal-header h3 {
     font-size: 14px;
   }
+
+   /* Small screens: center brand and place icons centered below the logo */
+  .app-header {
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .brand {
+    width: auto;
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+
+  .brand-text h1 {
+    font-size: 16px;
+  }
+
+  .header-actions {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: nowrap; /* keep icons in one row */
+    overflow-x: auto; /* allow scrolling if necessary */
+    -webkit-overflow-scrolling: touch;
+    margin: 0;
+  }
+
+  .header-actions .btn.keep-mobile,
+  .header-actions .btn.keep-mobile .btn-icon {
+    margin: 0 6px;
+  }
+  /* Keep the sidebar toggle pinned to the left edge on small screens */
+  .app-header {
+    position: relative;
+    padding-left: 56px; /* leave room for toggle */
+  }
+
+  .app-header .sidebar-toggle {
+    position: absolute;
+    left: 12px;
+    top: 14px; /* align with brand line */
+    transform: none;
+    z-index: 1300;
+    display: inline-flex;
+  }
 }
+
+  @media (max-width: 375px) {
+    .brand-text h1 { font-size: 15px; }
+    .header-actions { gap: 8px; }
+  }
+
+  @media (max-width: 320px) {
+    .brand-mark { width: 32px; height: 32px; }
+    .header-actions { gap: 6px; }
+  }
 
 @media (max-width: 375px) {
   .app-header {
